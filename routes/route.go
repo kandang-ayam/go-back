@@ -10,28 +10,26 @@ import (
 func Route(e *echo.Echo) {
 	api := e.Group("api/v1")
 
-	//Role cashier
+	// Role cashier
 	RouteCashier := api.Group("/cashier")
 	RouteCashier.POST("/login", controller.LoginCashier)
 	RouteCashier.Use(middleware.JWTMiddleware)
-	{
 
-	}
-
+	// Role admin
 	RouteAdmin := api.Group("/admin")
 	RouteAdmin.POST("/login", controller.LoginAdmin)
 	RouteAdmin.Use(middleware.JWTMiddleware, middleware.AdminMiddleware)
-	{
-		RouteAdmin.GET("/cashier", admin.GetCashier)
-		RouteAdmin.POST("/cashier", admin.AddCashier)
-		RouteAdmin.PUT("/cashier/:id", admin.EditCashier)
-		RouteAdmin.DELETE("/cashier/:id", admin.DeleteCashier)
 
-		RouteAdmin.GET("/membership", admin.GetMembership)
-		RouteAdmin.POST("/membership", admin.AddMembership)
-		RouteAdmin.POST("/membership/point", admin.AddPoint)
-		RouteAdmin.PUT("/membership/:id", admin.EditMembership)
-		RouteAdmin.DELETE("/membership/:id", admin.DeleteMembership)
-	}
+	// Membership endpoints
+	api.GET("/admin/membership", admin.GetMembership, middleware.JWTMiddleware)
+	api.POST("/admin/membership", admin.AddMembership, middleware.JWTMiddleware)
+	api.POST("/admin/membership/point", admin.AddPoint, middleware.JWTMiddleware)
+	api.PUT("/admin/membership/:id", admin.EditMembership, middleware.JWTMiddleware)
+	api.DELETE("/admin/membership/:id", admin.DeleteMembership, middleware.JWTMiddleware)
 
+	// Cashier endpoints
+	api.GET("/admin/cashier", admin.GetCashier, middleware.JWTMiddleware)
+	api.POST("/admin/cashier", admin.AddCashier, middleware.JWTMiddleware)
+	api.PUT("/admin/cashier/:id", admin.EditCashier, middleware.JWTMiddleware)
+	api.DELETE("/admin/cashier/:id", admin.DeleteCashier, middleware.JWTMiddleware)
 }

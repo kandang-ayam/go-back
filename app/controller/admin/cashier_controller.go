@@ -12,8 +12,8 @@ import (
 	"strconv"
 	"time"
 
-	"golang.org/x/crypto/bcrypt"
 	"github.com/labstack/echo/v4"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func GetCashier(c echo.Context) error {
@@ -133,7 +133,7 @@ func DeleteCashier(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	response := res.Response(200, "Success", "Cashier deleted", nil)
+	response := res.Response(200, "Success", "Cashier deleted", "")
 
 	return c.JSON(http.StatusOK, response)
 }

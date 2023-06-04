@@ -1,13 +1,11 @@
 package controller
 
 import (
-	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"point-of-sale/app/middleware"
 	"point-of-sale/app/model"
 	"point-of-sale/config"
 	"point-of-sale/utils/dto"
-	"point-of-sale/utils/res"
 
 	"github.com/labstack/echo/v4"
 )
@@ -19,27 +17,24 @@ func LoginCashier(c echo.Context) error {
 	)
 
 	if err := c.Bind(&request); err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", err.Error(), nil)
-		return c.JSON(http.StatusInternalServerError, format)
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := config.Db.Where("user_code = ?", request.Username).First(&user).Error; err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", err.Error(), nil)
-		return c.JSON(http.StatusInternalServerError, format)
+	if err := config.Db.Where("username = ?", request.Username).First(&user).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", "incorrect password", nil)
-		return c.JSON(http.StatusInternalServerError, format)
+	if user.Password != request.Password {
+		return c.JSON(http.StatusInternalServerError, "incorrect password")
 	}
 
 	token, err := middleware.GenerateToken(user.ID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	format := res.TransformLoginResponse(user, token)
-	resp := res.Response(http.StatusOK, "success", "successfully login", format)
-	return c.JSON(http.StatusOK, resp)
+
+	return c.JSON(http.StatusOK, token)
+
 }
 
 func LoginAdmin(c echo.Context) error {
@@ -49,25 +44,21 @@ func LoginAdmin(c echo.Context) error {
 	)
 
 	if err := c.Bind(&request); err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", err.Error(), nil)
-		return c.JSON(http.StatusInternalServerError, format)
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := config.Db.Where("username = ? AND role = ?", request.Username, "admin").First(&user).Error; err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", err.Error(), nil)
-		return c.JSON(http.StatusInternalServerError, format)
+	if err := config.Db.Where("username = ?", request.Username).First(&user).Error; err != nil {
+		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
 
-	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err != nil {
-		format := res.Response(http.StatusInternalServerError, "error", "incorrect password", nil)
-		return c.JSON(http.StatusInternalServerError, format)
+	if user.Password != request.Password {
+		return c.JSON(http.StatusInternalServerError, "incorrect password")
 	}
 
 	token, err := middleware.GenerateToken(user.ID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, err.Error())
 	}
-	format := res.TransformLoginResponse(user, token)
-	resp := res.Response(http.StatusOK, "success", "successfully login", format)
-	return c.JSON(http.StatusOK, resp)
+
+	return c.JSON(http.StatusOK, token)
 }

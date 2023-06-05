@@ -16,10 +16,20 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
-      - name: Build container image
+      - name: Set up Docker CLI
+        uses: docker/setup-docker@v1
+      
+      - name: Configure Docker registry authentication
         run: |
-          docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
-          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          mkdir ~/.docker
+          echo "${{ secrets.DOCKER_CONFIG }}" > ~/.docker/config.json
+          doctl registry login --config ~/.docker/config.json
+
+      - name: Build container image
+        run: docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
+
+      - name: Push image to DigitalOcean Container Registry
+        run: docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
 
   deploy:
     runs-on: ubuntu-latest

@@ -34,6 +34,7 @@ jobs:
         
       - name: Tag & Push image to DigitalOcean Container Registry
         run: |
+          doctl registry login
           docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
 
 

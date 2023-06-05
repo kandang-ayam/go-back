@@ -47,6 +47,6 @@ jobs:
    steps:
     - name: Deploy to DigitalOcean Droplet via SSH action
       run: |
-        ssh -i ${{ secrets.SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }}
+        ssh -i ${{ secrets.SSH_KEY }} root@${{ secrets.HOST }}
         docker stop $REGISTRY/$IMAGE_NAME:${{ github.sha }}
         docker run -d --name member -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}

@@ -18,7 +18,6 @@ jobs:
 
       - name: Configure Docker registry authentication
         run: |
-          mkdir ~/.docker
           echo "${{ secrets.DOCKER_CONFIG_JSON }}" > ~/.docker/config.json
           doctl registry login --config ~/.docker/config.json
 

@@ -21,9 +21,15 @@ jobs:
    
       - name: Build container image
         run: docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
-   
-      - name: Push image to DigitalOcean Container Registry
-        run: docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+        
+      - name: Login to Container Registry
+        run: docker login -u _json_key -p "$(cat ~/.docker/config.json)" $REGISTRY
+        
+      - name: Tag & Push image to DigitalOcean Container Registry
+        run: |
+          docker tag $IMAGE_NAME:${{ github.sha }} $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
 
 
 

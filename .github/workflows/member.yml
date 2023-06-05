@@ -53,6 +53,4 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           script: |
             docker pull $REGISTRY/$IMAGE_NAME:${{ github.sha }}
-            docker stop my-app || true
-            docker rm my-app || true
-            docker run -d --name my-app -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+            docker run -d --name member -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}

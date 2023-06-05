@@ -41,6 +41,7 @@ jobs:
 
 
   deploy:
+   needs: build_and_push
    runs-on: ubuntu-latest
    steps:
     - name: Deploy to Digital Ocean droplet via SSH action

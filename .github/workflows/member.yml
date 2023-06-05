@@ -26,7 +26,7 @@ jobs:
 
 
       - name: Log in to DigitalOcean Container Registry
-        run: echo "${{ secrets.REGISTRY_TOKEN }}" | doctl auth init --context github-actions --access-token-stdin
+        run: doctl auth ini ${{ secrets.REGISTRY_TOKEN }}
 
         
       - name: Build container image

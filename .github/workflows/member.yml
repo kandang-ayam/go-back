@@ -43,6 +43,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build_and_push
+    
+    env:
+     REGISTRY: "registry.digitalocean.com/private-registry"
+     IMAGE_NAME: "member"
 
     steps:
       - name: Deploy to DigitalOcean Droplet

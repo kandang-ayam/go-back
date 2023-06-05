@@ -45,7 +45,6 @@ jobs:
    steps:
     - name: Deploy to Digital Ocean droplet via SSH action
       run: |
-       envs: IMAGE_NAME,REGISTRY,{{ secrets.DIGITALOCEAN_ACCESS_TOKEN }},GITHUB_SHA
        ssh -i ${{ secrets.SSHKEY }} root@${{ secrets.HOST }}
        
           # Login to registry

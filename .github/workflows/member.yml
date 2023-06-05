@@ -16,8 +16,15 @@ jobs:
       - name: Checkout the repo
         uses: actions/checkout@v2
 
+      - name: Install doctl
+        run: |
+          curl -sL https://github.com/digitalocean/doctl/releases/latest/download/doctl-$(uname -s)-$(uname -m) -o doctl
+          chmod +x doctl
+          sudo mv doctl /usr/local/bin/
+
       - name: Configure Docker registry authentication
         run: |
+          mkdir ~/.docker
           echo "${{ secrets.DOCKER_CONFIG_JSON }}" > ~/.docker/config.json
           doctl registry login --config ~/.docker/config.json
 
@@ -26,6 +33,7 @@ jobs:
 
       - name: Push image to DigitalOcean Container Registry
         run: docker push $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+
 
 
   deploy:

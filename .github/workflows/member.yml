@@ -41,20 +41,19 @@ jobs:
 
 
   deploy:
-    runs-on: ubuntu-latest
-    needs: build_and_push
-    
-    env:
-     REGISTRY: "registry.digitalocean.com/private-registry"
-     IMAGE_NAME: "member"
+   runs-on: ubuntu-latest
+   needs: build_and_push
 
-    steps:
-      - name: Deploy to DigitalOcean Droplet
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSHKEY }}
-          script: |
-            docker pull $REGISTRY/$IMAGE_NAME:${{ github.sha }}
-            docker run -d --name member -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+   steps:
+    - name: Deploy to DigitalOcean Droplet
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSHKEY }}
+        script: |
+          ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
+          ssh -i ${{ secrets.SSHKEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker pull $REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+          ssh -i ${{ secrets.SSHKEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker stop member || true"
+          ssh -i ${{ secrets.SSHKEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker rm member || true"
+          ssh -i ${{ secrets.SSHKEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker run -d --name member -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}"

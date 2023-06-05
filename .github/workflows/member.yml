@@ -45,15 +45,26 @@ jobs:
    needs: build_and_push
 
    steps:
-    - name: Deploy to DigitalOcean Droplet
-      uses: appleboy/ssh-action@v0.1.6
+    - name: Deploy to DigitalOcean Droplet via SSH action
+      uses: appleboy/ssh-action@v0.1.3
       with:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
+        envs: IMAGE_NAME,REGISTRY,DIGITALOCEAN_ACCESS_TOKEN,GITHUB_SHA
         script: |
-          ssh-keyscan ${{ secrets.HOST }} >> ~/.ssh/known_hosts
-          ssh -i ${{ secrets.SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker pull $REGISTRY/$IMAGE_NAME:${{ github.sha }}"
-          ssh -i ${{ secrets.SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker stop member || true"
-          ssh -i ${{ secrets.SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker rm member || true"
-          ssh -i ${{ secrets.SSH_KEY }} ${{ secrets.USERNAME }}@${{ secrets.HOST }} "docker run -d --name member -p 8000:8000 $REGISTRY/$IMAGE_NAME:${{ github.sha }}"
+          # Login to registry
+          doctl registry login
+          
+          # Stop running container
+          docker stop $IMAGE_NAME || true
+          
+          # Remove old container
+          docker rm $IMAGE_NAME || true
+          
+          # Run a new container from a new image
+          docker run -d \
+            --restart always \
+            --name $IMAGE_NAME \
+            -p 8000:8000 \ 
+            $REGISTRY/$IMAGE_NAME:${GITHUB_SHA::7} 

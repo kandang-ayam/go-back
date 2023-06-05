@@ -2,7 +2,7 @@ name: Digital Ocean
 
 on:
   push:
-    branches: [features/membersip]
+    branches: [ features/membersip ]
   workflow_dispatch:
     inputs:
       version:

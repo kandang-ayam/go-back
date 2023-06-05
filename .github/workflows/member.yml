@@ -55,10 +55,10 @@ jobs:
           doctl registry login
           
           # Stop running container
-          docker stop $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          # docker stop $REGISTRY/$IMAGE_NAME:${{ github.sha }}
           
           # Remove old container
-          docker rm $REGISTRY/$IMAGE_NAME:${{ github.sha }}
+          # docker rm $REGISTRY/$IMAGE_NAME:${{ github.sha }}
           
           # Run a new container from a new image
           docker run -dp 8000:8000 \

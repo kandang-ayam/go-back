@@ -41,26 +41,27 @@ jobs:
 
 
   deploy:
-   runs-on: ubuntu-latest 
+   runs-on: ubuntu-latest
    steps:
     - name: Deploy to Digital Ocean droplet via SSH action
       run: |
-       ssh -i ${{ secrets.SSHKEY }} root@${{ secrets.HOST }}
-       
+        echo "${{ secrets.SSHKEY }}" > ssh_key.pem
+        chmod 600 ssh_key.pem
+        ssh -i ssh_key.pem -o StrictHostKeyChecking=no root@${{ secrets.HOST }} <<EOF
+          set -e
+          
           # Login to registry
-       doctl registry login
+          doctl registry login
           
           # Stop running container
-       docker stop $(echo $IMAGE_NAME)
-       
+          docker stop \$(echo \$IMAGE_NAME)
+          
           # Remove old container
-       docker rm $(echo $IMAGE_NAME)
-       
+          docker rm \$(echo \$IMAGE_NAME)
+          
           # Run a new container from a new image
-       docker run -dp 8000:8000 \
-       --restart always \
-       --name $(echo $IMAGE_NAME) \
-       $(echo $REGISTRY)/$(echo $IMAGE_NAME):$(echo $GITHUB_SHA | head -c7)
-
-        
-
+          docker run -dp 8000:8000 \
+            --restart always \
+            --name \$(echo \$IMAGE_NAME) \
+            \$(echo \$REGISTRY)/\$(echo \$IMAGE_NAME):\$(echo \$GITHUB_SHA | head -c7)
+        EOF

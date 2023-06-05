@@ -26,12 +26,11 @@ jobs:
 
 
       - name: Log in to DigitalOcean Container Registry
-        run: doctl auth init ${{ secrets.REGISTRY_TOKEN }}
+        run: doctl auth ini ${{ secrets.REGISTRY_TOKEN }}
 
         
       - name: Build container image
         run: docker build -t $REGISTRY/$IMAGE_NAME:${{ github.sha }} .
-        
         
       - name: Tag & Push image to DigitalOcean Container Registry
         run: |
